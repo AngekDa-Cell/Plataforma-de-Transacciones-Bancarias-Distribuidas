@@ -58,7 +58,7 @@ public class BankingService {
         
         Account account = new Account(accountId, customerId, initialBalance);
         accounts.put(accountId, account);
-        accountLocks.put(accountId, new ReentrantLock());
+        accountLocks.putIfAbsent(accountId, new ReentrantLock());
         return account;
     }
 
