@@ -1,0 +1,22 @@
+# Build outputs
+out/
+bin/
+build/
+target/
+
+# Java
+*.class
+hs_err_pid*
+
+# IDEs and editors
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db
