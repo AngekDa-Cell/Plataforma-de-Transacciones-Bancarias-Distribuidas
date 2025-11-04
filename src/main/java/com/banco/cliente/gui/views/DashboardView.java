@@ -2,88 +2,150 @@ package com.banco.cliente.gui.views;
 
 import com.banco.cliente.gui.ClienteBancarioGUI;
 import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
 
 /**
- * Vista de Dashboard implementada con Swing (estilo Tkinter).
+ * Vista de Dashboard implementada con Swing (diseño mejorado).
  */
 public class DashboardView extends JPanel {
 
     private ClienteBancarioGUI mainApp;
     private String idCuenta;
     private JLabel saldoLabel;
+    private JLabel saldoValorLabel;
 
     public DashboardView(ClienteBancarioGUI mainApp, String idCuenta) {
         this.mainApp = mainApp;
         this.idCuenta = idCuenta;
         
-        // Configurar el panel con layout GridBagLayout
-        setLayout(new GridBagLayout());
+        // Configurar el panel con layout BorderLayout
+        setLayout(new BorderLayout(0, 15));
+        setBackground(new Color(240, 248, 255)); // AliceBlue
+        setBorder(new EmptyBorder(20, 20, 20, 20));
+        
+        // Panel superior - Cabecera
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(70, 130, 180)); // SteelBlue
+        headerPanel.setBorder(new EmptyBorder(20, 25, 20, 25));
+        
+        // Título de bienvenida
+        JLabel welcomeLabel = new JLabel("👤 Bienvenido, " + idCuenta);
+        welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        welcomeLabel.setForeground(Color.WHITE);
+        headerPanel.add(welcomeLabel, BorderLayout.WEST);
+        
+        add(headerPanel, BorderLayout.NORTH);
+        
+        // Panel central con GridBagLayout
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(new Color(240, 248, 255));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
-        // Título de bienvenida
-        JLabel welcomeLabel = new JLabel("Bienvenido, " + idCuenta);
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        // Panel de saldo (tarjeta)
+        JPanel saldoPanel = new JPanel(new GridBagLayout());
+        saldoPanel.setBackground(Color.WHITE);
+        saldoPanel.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(70, 130, 180), 2, true),
+            new EmptyBorder(20, 30, 20, 30)
+        ));
+        
+        GridBagConstraints gbcSaldo = new GridBagConstraints();
+        gbcSaldo.gridx = 0;
+        gbcSaldo.gridy = 0;
+        gbcSaldo.insets = new Insets(5, 0, 5, 0);
+        
+        saldoLabel = new JLabel("💰 Saldo Disponible");
+        saldoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        saldoLabel.setForeground(Color.GRAY);
+        saldoPanel.add(saldoLabel, gbcSaldo);
+        
+        gbcSaldo.gridy = 1;
+        saldoValorLabel = new JLabel("Cargando...");
+        saldoValorLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        saldoValorLabel.setForeground(new Color(34, 139, 34)); // ForestGreen
+        saldoPanel.add(saldoValorLabel, gbcSaldo);
+        
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(welcomeLabel, gbc);
-        
-        // Label de saldo
-        saldoLabel = new JLabel("Saldo Actual: Cargando...");
-        saldoLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        gbc.gridy = 1;
-        add(saldoLabel, gbc);
+        centerPanel.add(saldoPanel, gbc);
         
         // Cargar saldo inicial
         cargarSaldo();
         
-        // Panel de botones
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(4, 1, 10, 10));
+        // Panel de botones principales
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        JButton transferBtn = crearBotonPrincipal("💸 Transferencia", 
+            new Color(70, 130, 180), 
+            e -> mainApp.mostrarVistaTransferencia(idCuenta));
+        centerPanel.add(transferBtn, gbc);
         
-        JButton transferButton = new JButton("Realizar Transferencia");
-        JButton opButton = new JButton("Depósito / Retiro");
-        JButton refreshButton = new JButton("Actualizar Saldo");
-        JButton logoutButton = new JButton("Cerrar Sesión");
+        gbc.gridx = 1;
+        JButton opBtn = crearBotonPrincipal("💵 Operaciones", 
+            new Color(30, 144, 255), 
+            e -> mainApp.mostrarVistaOperacion(idCuenta));
+        centerPanel.add(opBtn, gbc);
         
-        // Establecer tamaño preferido para los botones
-        Dimension buttonSize = new Dimension(200, 40);
-        transferButton.setPreferredSize(buttonSize);
-        opButton.setPreferredSize(buttonSize);
-        refreshButton.setPreferredSize(buttonSize);
-        logoutButton.setPreferredSize(buttonSize);
-        
-        buttonPanel.add(transferButton);
-        buttonPanel.add(opButton);
-        buttonPanel.add(refreshButton);
-        buttonPanel.add(logoutButton);
-        
+        // Botones secundarios
         gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        add(buttonPanel, gbc);
+        gbc.gridx = 0;
+        JButton refreshBtn = crearBotonSecundario("🔄 Actualizar Saldo", 
+            e -> cargarSaldo());
+        centerPanel.add(refreshBtn, gbc);
         
-        // Acciones de botones
-        transferButton.addActionListener(e -> mainApp.mostrarVistaTransferencia(idCuenta));
+        gbc.gridx = 1;
+        JButton logoutBtn = crearBotonSecundario("🚪 Cerrar Sesión", 
+            e -> cerrarSesion());
+        centerPanel.add(logoutBtn, gbc);
         
-        opButton.addActionListener(e -> mainApp.mostrarVistaOperacion(idCuenta));
-        
-        refreshButton.addActionListener(e -> cargarSaldo());
-        
-        logoutButton.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(
-                mainApp.getMainFrame(),
-                "¿Está seguro que desea cerrar sesión?",
-                "Confirmar Cierre de Sesión",
-                JOptionPane.YES_NO_OPTION
-            );
-            if (confirm == JOptionPane.YES_OPTION) {
-                mainApp.mostrarLoginView();
-            }
-        });
+        add(centerPanel, BorderLayout.CENTER);
+    }
+    
+    private JButton crearBotonPrincipal(String texto, Color color, java.awt.event.ActionListener action) {
+        JButton btn = new JButton(texto);
+        btn.setPreferredSize(new Dimension(220, 60));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        btn.setBackground(color);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(true);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.addActionListener(action);
+        return btn;
+    }
+    
+    private JButton crearBotonSecundario(String texto, java.awt.event.ActionListener action) {
+        JButton btn = new JButton(texto);
+        btn.setPreferredSize(new Dimension(220, 45));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setBackground(Color.WHITE);
+        btn.setForeground(new Color(70, 130, 180));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(70, 130, 180), 2, true),
+            new EmptyBorder(10, 15, 10, 15)
+        ));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.addActionListener(action);
+        return btn;
+    }
+    
+    private void cerrarSesion() {
+        int confirm = JOptionPane.showConfirmDialog(
+            mainApp.getMainFrame(),
+            "¿Está seguro que desea cerrar sesión?",
+            "Confirmar Cierre de Sesión",
+            JOptionPane.YES_NO_OPTION
+        );
+        if (confirm == JOptionPane.YES_OPTION) {
+            mainApp.mostrarLoginView();
+        }
     }
     
     /**
@@ -93,9 +155,10 @@ public class DashboardView extends JPanel {
         try {
             double saldo = mainApp.getRmiConnector().getBancoStub()
                 .consultarSaldo(idCuenta);
-            saldoLabel.setText(String.format("Saldo Actual: $%.2f", saldo));
+            saldoValorLabel.setText(String.format("$%.2f", saldo));
         } catch (Exception ex) {
-            saldoLabel.setText("Saldo Actual: Error al cargar");
+            saldoValorLabel.setText("Error");
+            saldoValorLabel.setForeground(new Color(220, 20, 60)); // Crimson
             JOptionPane.showMessageDialog(mainApp.getMainFrame(),
                 "Error al consultar saldo: " + ex.getMessage(),
                 "Error",

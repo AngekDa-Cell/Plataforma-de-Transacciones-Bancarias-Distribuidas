@@ -2,10 +2,11 @@ package com.banco.cliente.gui.views;
 
 import com.banco.cliente.gui.ClienteBancarioGUI;
 import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
 
 /**
- * Vista de Operaciones (Depósito/Retiro) implementada con Swing (estilo Tkinter).
+ * Vista de Operaciones (Depósito/Retiro) implementada con Swing (diseño mejorado).
  */
 public class OperationView extends JPanel {
 
@@ -20,32 +21,79 @@ public class OperationView extends JPanel {
         this.mainApp = mainApp;
         this.idCuenta = idCuenta;
         
-        // Configurar el panel con layout GridBagLayout
-        setLayout(new GridBagLayout());
+        // Configurar el panel con BorderLayout
+        setLayout(new BorderLayout(0, 15));
+        setBackground(new Color(240, 248, 255)); // AliceBlue
+        setBorder(new EmptyBorder(20, 20, 20, 20));
+        
+        // Panel superior - Cabecera
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(30, 144, 255)); // DodgerBlue
+        headerPanel.setBorder(new EmptyBorder(20, 25, 20, 25));
+        
+        // Botón volver
+        JButton volverBtn = new JButton("← Volver");
+        volverBtn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        volverBtn.setForeground(Color.WHITE);
+        volverBtn.setBackground(new Color(30, 144, 255));
+        volverBtn.setBorderPainted(false);
+        volverBtn.setFocusPainted(false);
+        volverBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        volverBtn.addActionListener(e -> mainApp.mostrarDashboardView(idCuenta));
+        headerPanel.add(volverBtn, BorderLayout.WEST);
+        
+        JLabel titleLabel = new JLabel("💵 Depósito / Retiro");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        headerPanel.add(titleLabel, BorderLayout.CENTER);
+        
+        JLabel cuentaLabel = new JLabel("Cuenta: " + idCuenta);
+        cuentaLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cuentaLabel.setForeground(Color.WHITE);
+        headerPanel.add(cuentaLabel, BorderLayout.EAST);
+        
+        add(headerPanel, BorderLayout.NORTH);
+        
+        // Panel central con formulario
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(Color.WHITE);
+        centerPanel.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(30, 144, 255), 2, true),
+            new EmptyBorder(30, 40, 30, 40)
+        ));
+        
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(12, 12, 12, 12);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
-        // Título
-        JLabel titleLabel = new JLabel("Depósito o Retiro");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        // Título de sección
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(titleLabel, gbc);
+        JLabel seccionLabel = new JLabel("Seleccione el tipo de operación:");
+        seccionLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        seccionLabel.setForeground(new Color(25, 25, 112));
+        centerPanel.add(seccionLabel, gbc);
         
-        // Radio buttons para tipo de operación
+        // Radio buttons con estilo
         gbc.gridy = 1;
         gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.WEST;
         
-        JPanel radioPanel = new JPanel();
-        radioPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        radioPanel.setBackground(Color.WHITE);
         
         ButtonGroup group = new ButtonGroup();
-        rbDeposito = new JRadioButton("Depositar", true);
-        rbRetiro = new JRadioButton("Retirar");
+        rbDeposito = new JRadioButton("💰 Depositar", true);
+        rbDeposito.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        rbDeposito.setBackground(Color.WHITE);
+        rbDeposito.setFocusPainted(false);
+        
+        rbRetiro = new JRadioButton("💸 Retirar");
+        rbRetiro.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        rbRetiro.setBackground(Color.WHITE);
+        rbRetiro.setFocusPainted(false);
+        
         group.add(rbDeposito);
         group.add(rbRetiro);
         
@@ -54,50 +102,81 @@ public class OperationView extends JPanel {
         
         gbc.gridx = 0;
         gbc.gridwidth = 2;
-        add(radioPanel, gbc);
+        centerPanel.add(radioPanel, gbc);
+        
+        // Separador
+        gbc.gridy = 2;
+        gbc.insets = new Insets(20, 12, 12, 12);
+        JSeparator separator = new JSeparator();
+        centerPanel.add(separator, gbc);
         
         // Label y campo de monto
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.EAST;
-        add(new JLabel("Monto:"), gbc);
+        gbc.insets = new Insets(12, 12, 12, 12);
+        JLabel montoLabel = new JLabel("Monto:");
+        montoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        centerPanel.add(montoLabel, gbc);
         
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        montoField = new JTextField(15);
-        add(montoField, gbc);
+        montoField = new JTextField(18);
+        montoField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        montoField.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(200, 200, 200), 1),
+            new EmptyBorder(8, 10, 8, 10)
+        ));
+        centerPanel.add(montoField, gbc);
         
         // Panel de botones
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(25, 12, 12, 12);
         
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        buttonPanel.setBackground(Color.WHITE);
         
-        JButton confirmButton = new JButton("Confirmar Operación");
-        JButton cancelButton = new JButton("Cancelar");
+        JButton confirmButton = crearBoton("✓ Confirmar", new Color(34, 139, 34));
+        JButton cancelButton = crearBoton("✗ Cancelar", new Color(220, 20, 60));
         
         buttonPanel.add(confirmButton);
         buttonPanel.add(cancelButton);
         
-        add(buttonPanel, gbc);
+        centerPanel.add(buttonPanel, gbc);
         
         // Label de estado
-        gbc.gridy = 4;
+        gbc.gridy = 5;
+        gbc.insets = new Insets(15, 12, 0, 12);
         statusLabel = new JLabel("");
-        statusLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        add(statusLabel, gbc);
+        statusLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        centerPanel.add(statusLabel, gbc);
+        
+        add(centerPanel, BorderLayout.CENTER);
         
         // Acciones de botones
         confirmButton.addActionListener(e -> realizarOperacion());
-        
         cancelButton.addActionListener(e -> mainApp.mostrarDashboardView(idCuenta));
         
         // Permitir confirmar con Enter
         montoField.addActionListener(e -> realizarOperacion());
+    }
+    
+    private JButton crearBoton(String texto, Color color) {
+        JButton btn = new JButton(texto);
+        btn.setPreferredSize(new Dimension(150, 40));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setBackground(color);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(true);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
     }
     
     private void realizarOperacion() {

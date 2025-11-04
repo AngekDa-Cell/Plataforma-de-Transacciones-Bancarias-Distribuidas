@@ -20,9 +20,9 @@ public class ClienteBancarioGUI {
             e.printStackTrace();
         }
 
-        this.mainFrame = new JFrame("Banco Distribuido");
+        this.mainFrame = new JFrame("🏦 Banco Distribuido");
         this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.mainFrame.setSize(400, 300);
+        this.mainFrame.setSize(550, 450);
         this.mainFrame.setLocationRelativeTo(null); // Centrar en pantalla
 
         this.rmiConnector = new RMIConnector();
@@ -38,7 +38,7 @@ public class ClienteBancarioGUI {
      */
     public void mostrarLoginView() {
         LoginView loginView = new LoginView(this);
-        cambiarVista(loginView, 400, 300);
+        cambiarVista(loginView, 550, 450);
     }
 
     /**
@@ -47,7 +47,7 @@ public class ClienteBancarioGUI {
      */
     public void mostrarDashboardView(String idCuenta) {
         DashboardView dashboardView = new DashboardView(this, idCuenta);
-        cambiarVista(dashboardView, 500, 400);
+        cambiarVista(dashboardView, 600, 500);
     }
 
     /**
@@ -56,7 +56,7 @@ public class ClienteBancarioGUI {
      */
     public void mostrarVistaOperacion(String idCuenta) {
         OperationView operationView = new OperationView(this, idCuenta);
-        cambiarVista(operationView, 450, 350);
+        cambiarVista(operationView, 600, 500);
     }
 
     /**
@@ -65,7 +65,7 @@ public class ClienteBancarioGUI {
      */
     public void mostrarVistaTransferencia(String idCuentaOrigen) {
         TransferView transferView = new TransferView(this, idCuentaOrigen);
-        cambiarVista(transferView, 450, 350);
+        cambiarVista(transferView, 600, 500);
     }
     
     /**

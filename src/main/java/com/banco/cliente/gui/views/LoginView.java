@@ -2,10 +2,11 @@ package com.banco.cliente.gui.views;
 
 import com.banco.cliente.gui.ClienteBancarioGUI;
 import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
 
 /**
- * Vista de Login implementada con Swing (estilo Tkinter).
+ * Vista de Login implementada con Swing (diseño mejorado).
  */
 public class LoginView extends JPanel {
 
@@ -17,59 +18,118 @@ public class LoginView extends JPanel {
     public LoginView(ClienteBancarioGUI mainApp) {
         this.mainApp = mainApp;
         
-        // Configurar el panel con layout GridBagLayout para más control
+        // Configurar el panel principal con color de fondo
         setLayout(new GridBagLayout());
+        setBackground(new Color(240, 248, 255)); // AliceBlue
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
         
-        // Título
-        JLabel titleLabel = new JLabel("Inicio de Sesión");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        add(titleLabel, gbc);
+        // Panel central con borde y sombra
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.setBackground(Color.WHITE);
+        centerPanel.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(70, 130, 180), 2, true),
+            new EmptyBorder(30, 40, 30, 40)
+        ));
         
-        // Label y campo de ID de Cuenta
-        gbc.gridwidth = 1;
-        gbc.gridy = 1;
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.EAST;
-        add(new JLabel("ID de Cuenta:"), gbc);
+        GridBagConstraints gbcCenter = new GridBagConstraints();
+        gbcCenter.insets = new Insets(8, 8, 8, 8);
+        gbcCenter.fill = GridBagConstraints.HORIZONTAL;
         
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        cuentaField = new JTextField(15);
-        add(cuentaField, gbc);
+        // Icono y título
+        JLabel iconLabel = new JLabel("🏦");
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 48));
+        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gbcCenter.gridx = 0;
+        gbcCenter.gridy = 0;
+        gbcCenter.gridwidth = 2;
+        centerPanel.add(iconLabel, gbcCenter);
         
-        // Label y campo de Contraseña
-        gbc.gridy = 2;
-        gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.EAST;
-        add(new JLabel("Contraseña:"), gbc);
+        JLabel titleLabel = new JLabel("Banco Distribuido");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        titleLabel.setForeground(new Color(25, 25, 112)); // MidnightBlue
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gbcCenter.gridy = 1;
+        centerPanel.add(titleLabel, gbcCenter);
         
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        passField = new JPasswordField(15);
-        add(passField, gbc);
+        JLabel subtitleLabel = new JLabel("Inicio de Sesión");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitleLabel.setForeground(Color.GRAY);
+        subtitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gbcCenter.gridy = 2;
+        gbcCenter.insets = new Insets(0, 8, 15, 8);
+        centerPanel.add(subtitleLabel, gbcCenter);
         
-        // Botón de Login
-        gbc.gridy = 3;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
+        gbcCenter.insets = new Insets(8, 8, 8, 8);
+        gbcCenter.insets = new Insets(8, 8, 8, 8);
+        
+        // Label y campo de ID de Cuenta con estilo
+        gbcCenter.gridwidth = 1;
+        gbcCenter.gridy = 3;
+        gbcCenter.gridx = 0;
+        gbcCenter.anchor = GridBagConstraints.EAST;
+        JLabel cuentaLabel = new JLabel("ID de Cuenta:");
+        cuentaLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        centerPanel.add(cuentaLabel, gbcCenter);
+        
+        gbcCenter.gridx = 1;
+        gbcCenter.anchor = GridBagConstraints.WEST;
+        cuentaField = new JTextField(18);
+        cuentaField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        cuentaField.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(200, 200, 200), 1),
+            new EmptyBorder(5, 8, 5, 8)
+        ));
+        centerPanel.add(cuentaField, gbcCenter);
+        
+        // Label y campo de Contraseña con estilo
+        gbcCenter.gridy = 4;
+        gbcCenter.gridx = 0;
+        gbcCenter.anchor = GridBagConstraints.EAST;
+        JLabel passLabel = new JLabel("Contraseña:");
+        passLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        centerPanel.add(passLabel, gbcCenter);
+        
+        gbcCenter.gridx = 1;
+        gbcCenter.anchor = GridBagConstraints.WEST;
+        passField = new JPasswordField(18);
+        passField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        passField.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(200, 200, 200), 1),
+            new EmptyBorder(5, 8, 5, 8)
+        ));
+        centerPanel.add(passField, gbcCenter);
+        
+        // Botón de Login con estilo moderno
+        gbcCenter.gridy = 5;
+        gbcCenter.gridx = 0;
+        gbcCenter.gridwidth = 2;
+        gbcCenter.anchor = GridBagConstraints.CENTER;
+        gbcCenter.insets = new Insets(20, 8, 8, 8);
         JButton loginButton = new JButton("Ingresar");
-        loginButton.setPreferredSize(new Dimension(120, 30));
-        add(loginButton, gbc);
+        loginButton.setPreferredSize(new Dimension(200, 40));
+        loginButton.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        loginButton.setBackground(new Color(70, 130, 180)); // SteelBlue
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setFocusPainted(false);
+        loginButton.setBorderPainted(false);
+        loginButton.setOpaque(true);
+        loginButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        centerPanel.add(loginButton, gbcCenter);
         
         // Label de error
-        gbc.gridy = 4;
+        gbcCenter.gridy = 6;
+        gbcCenter.insets = new Insets(8, 8, 8, 8);
         errorLabel = new JLabel("");
-        errorLabel.setForeground(Color.RED);
-        errorLabel.setFont(new Font("Arial", Font.PLAIN, 11));
-        add(errorLabel, gbc);
+        errorLabel.setForeground(new Color(220, 20, 60)); // Crimson
+        errorLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        centerPanel.add(errorLabel, gbcCenter);
+        
+        // Agregar panel central al panel principal
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        add(centerPanel, gbc);
         
         // Acción del botón de login
         loginButton.addActionListener(e -> realizarLogin());
