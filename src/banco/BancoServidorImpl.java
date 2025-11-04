@@ -8,14 +8,28 @@ import java.util.Map;
 public class BancoServidorImpl extends UnicastRemoteObject implements BancoServidor {
 
     private final Map<String, Double> saldos;
+    private final Map<String, String> credenciales;
 
     public BancoServidorImpl() throws RemoteException {
         super();
         this.saldos = new HashMap<>();
-        // Cuentas de ejemplo
+        this.credenciales = new HashMap<>();
+        
+        // Cuentas de ejemplo con credenciales
         this.saldos.put("CTA-1001", 5000.0);
+        this.credenciales.put("CTA-1001", "1234");
+        
         this.saldos.put("CTA-1002", 2000.0);
+        this.credenciales.put("CTA-1002", "1234");
+        
         this.saldos.put("CTA-1003", 1000.0);
+        this.credenciales.put("CTA-1003", "1234");
+    }
+
+    @Override
+    public boolean autenticar(String idCuenta, String password) throws RemoteException {
+        String passAlmacenada = credenciales.get(idCuenta);
+        return passAlmacenada != null && passAlmacenada.equals(password);
     }
 
     @Override

@@ -1,9 +1,12 @@
+package com.banco.cliente.gui;
+
+import com.banco.servidor.BancoServidor;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
 /**
  * Clase de utilidad (helper) para gestionar la conexión RMI.
  */
-
-
- 
 public class RMIConnector {
 
     private BancoServidor bancoStub;

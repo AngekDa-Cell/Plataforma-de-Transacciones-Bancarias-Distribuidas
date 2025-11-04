@@ -1,33 +1,44 @@
+package com.banco.cliente.gui;
+
+import com.banco.cliente.gui.views.*;
+import javax.swing.*;
+
 /**
- * Clase principal de la aplicación JavaFX.
- * Gestiona el 'Stage' principal y la navegación entre vistas (Scenes).
+ * Clase principal de la aplicación Swing.
+ * Gestiona el JFrame principal y la navegación entre vistas (JPanels).
  */
+public class ClienteBancarioGUI {
 
-
-public class ClienteBancarioGUI extends Application {
-
-    private Stage primaryStage;
+    private JFrame mainFrame;
     private RMIConnector rmiConnector;
 
-    @Override
-    public void start(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("Banco Distribuido");
+    public ClienteBancarioGUI() {
+        // Configurar el Look and Feel del sistema
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        this.mainFrame = new JFrame("Banco Distribuido");
+        this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.mainFrame.setSize(400, 300);
+        this.mainFrame.setLocationRelativeTo(null); // Centrar en pantalla
 
         this.rmiConnector = new RMIConnector();
         
         // Iniciar con la vista de Login
         mostrarLoginView();
         
-        this.primaryStage.show();
+        this.mainFrame.setVisible(true);
     }
 
     /**
-     * Muestra la vista de Login en el Stage principal.
+     * Muestra la vista de Login en el Frame principal.
      */
     public void mostrarLoginView() {
         LoginView loginView = new LoginView(this);
-        cambiarEscena(loginView, 350, 250);
+        cambiarVista(loginView, 400, 300);
     }
 
     /**
@@ -36,15 +47,37 @@ public class ClienteBancarioGUI extends Application {
      */
     public void mostrarDashboardView(String idCuenta) {
         DashboardView dashboardView = new DashboardView(this, idCuenta);
-        cambiarEscena(dashboardView, 500, 400);
+        cambiarVista(dashboardView, 500, 400);
+    }
+
+    /**
+     * Muestra la vista de operaciones (Depósito/Retiro).
+     * @param idCuenta El ID de la cuenta del usuario.
+     */
+    public void mostrarVistaOperacion(String idCuenta) {
+        OperationView operationView = new OperationView(this, idCuenta);
+        cambiarVista(operationView, 450, 350);
+    }
+
+    /**
+     * Muestra la vista de transferencias.
+     * @param idCuentaOrigen El ID de la cuenta de origen.
+     */
+    public void mostrarVistaTransferencia(String idCuentaOrigen) {
+        TransferView transferView = new TransferView(this, idCuentaOrigen);
+        cambiarVista(transferView, 450, 350);
     }
     
     /**
-     * Método helper para cambiar la escena (vista) actual en la ventana.
+     * Método helper para cambiar la vista actual en la ventana.
      */
-    private void cambiarEscena(Pane nuevaVista, double width, double height) {
-        Scene scene = new Scene(nuevaVista, width, height);
-        primaryStage.setScene(scene);
+    private void cambiarVista(JPanel nuevaVista, int width, int height) {
+        mainFrame.getContentPane().removeAll();
+        mainFrame.getContentPane().add(nuevaVista);
+        mainFrame.setSize(width, height);
+        mainFrame.setLocationRelativeTo(null); // Re-centrar
+        mainFrame.revalidate();
+        mainFrame.repaint();
     }
     
     /**
@@ -54,7 +87,15 @@ public class ClienteBancarioGUI extends Application {
         return rmiConnector;
     }
 
+    /**
+     * Devuelve el JFrame principal para operaciones de diálogo.
+     */
+    public JFrame getMainFrame() {
+        return mainFrame;
+    }
+
     public static void main(String[] args) {
-        launch(args);
+        // Ejecutar en el Event Dispatch Thread de Swing
+        SwingUtilities.invokeLater(() -> new ClienteBancarioGUI());
     }
 }

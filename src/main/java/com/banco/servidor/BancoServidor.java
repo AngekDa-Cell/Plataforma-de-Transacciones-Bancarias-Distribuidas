@@ -1,9 +1,12 @@
+package com.banco.servidor;
+
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
 /**
  * Interfaz RMI que define las operaciones remotas del banco.
  * Esta interfaz es necesaria tanto para el servidor como para el cliente.
  */
-
- 
 public interface BancoServidor extends Remote {
     
     /**
