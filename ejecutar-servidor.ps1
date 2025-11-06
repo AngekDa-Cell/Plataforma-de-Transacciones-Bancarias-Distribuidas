@@ -1,5 +1,7 @@
-# Script para ejecutar el servidor RMI
-cd "c:\Users\Ramse\OneDrive\Escritorio\proyectos\Plataforma-de-Transacciones-Bancarias-Distribuidas"
+# Script para ejecutar el servidor RMI (ruta independiente)
+$here = $PSScriptRoot
+if (-not $here) { $here = Get-Location }
+Set-Location $here
 
 Write-Host "==================================" -ForegroundColor Cyan
 Write-Host "Iniciando Servidor RMI" -ForegroundColor Cyan
