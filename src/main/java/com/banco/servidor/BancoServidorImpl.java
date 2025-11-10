@@ -204,11 +204,10 @@ public class BancoServidorImpl extends UnicastRemoteObject implements BancoServi
     private static class SeguridadResultado {
         final boolean ok;
         final String certSubject;
-        final String reason;
-        private SeguridadResultado(boolean ok, String certSubject, String reason) {
-            this.ok = ok; this.certSubject = certSubject; this.reason = reason;
+        private SeguridadResultado(boolean ok, String certSubject) {
+            this.ok = ok; this.certSubject = certSubject;
         }
-        static SeguridadResultado ok(String subject) { return new SeguridadResultado(true, subject, null); }
-        static SeguridadResultado fail(String reason) { return new SeguridadResultado(false, null, reason); }
+        static SeguridadResultado ok(String subject) { return new SeguridadResultado(true, subject); }
+        static SeguridadResultado fail(String reason) { return new SeguridadResultado(false, null); }
     }
 }
