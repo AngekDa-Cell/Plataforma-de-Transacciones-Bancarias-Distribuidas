@@ -41,4 +41,36 @@ public interface BancoServidor extends Remote {
      * @return true si la operación fue exitosa, false si no.
      */
     boolean registrarOperacion(String idCuenta, String tipoOperacion, double monto) throws RemoteException;
+
+    // ================= Seguridad con certificados y firmas =================
+    /**
+     * Autenticación basada en certificado del usuario. El cliente debe firmar el mensaje
+     * canónico: "LOGIN|{idCuenta}|{timestamp}" con su clave privada.
+     * El servidor verificará la firma con el certificado enviado y que dicho certificado
+     * esté presente en el truststore del servidor.
+     * @param idCuenta ID de la cuenta.
+     * @param timestamp Epoch millis utilizado en el mensaje canónico.
+     * @param firma Firma digital del mensaje canónico (bytes crudos de la firma).
+     * @param certificadoX509Der Certificado X.509 del usuario en formato DER (array de bytes).
+     * @return true si la autenticación es exitosa.
+     */
+    boolean autenticarCert(String idCuenta, long timestamp, byte[] firma, byte[] certificadoX509Der) throws RemoteException;
+
+    /**
+     * Versión firmada de consulta de saldo.
+     * Mensaje canónico: "CONSULTAR|{idCuenta}|{timestamp}".
+     */
+    double consultarSaldoFirmado(String idCuenta, long timestamp, byte[] firma, byte[] certificadoX509Der) throws RemoteException;
+
+    /**
+     * Versión firmada de transferencia de fondos.
+     * Mensaje canónico: "TRANSFERIR|{idCuentaOrigen}|{idCuentaDestino}|{monto}|{timestamp}".
+     */
+    boolean transferirFondosFirmado(String idCuentaOrigen, String idCuentaDestino, double monto, long timestamp, byte[] firma, byte[] certificadoX509Der) throws RemoteException;
+
+    /**
+     * Versión firmada de registro de operación (depósito/retiro).
+     * Mensaje canónico: "OPERACION|{idCuenta}|{tipoOperacion}|{monto}|{timestamp}".
+     */
+    boolean registrarOperacionFirmado(String idCuenta, String tipoOperacion, double monto, long timestamp, byte[] firma, byte[] certificadoX509Der) throws RemoteException;
 }

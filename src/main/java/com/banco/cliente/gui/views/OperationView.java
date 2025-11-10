@@ -205,8 +205,21 @@ public class OperationView extends JPanel {
         String tipoOperacion = rbDeposito.isSelected() ? "DEPOSITO" : "RETIRO";
         
         try {
-            boolean exitoso = mainApp.getRmiConnector().getBancoStub()
-                .registrarOperacion(idCuenta, tipoOperacion, monto);
+            boolean exitoso;
+            if (mainApp.getPrivateKey() != null && mainApp.getCertificate() != null) {
+                long ts = System.currentTimeMillis();
+                String canonical = String.format("OPERACION|%s|%s|%.8f|%d", idCuenta,
+                        tipoOperacion, monto, ts);
+                byte[] firma = com.banco.security.SecurityUtil.sign(
+                        com.banco.security.SecurityUtil.utf8(canonical),
+                        mainApp.getPrivateKey());
+                exitoso = mainApp.getRmiConnector().getBancoStub()
+                        .registrarOperacionFirmado(idCuenta, tipoOperacion, monto, ts, firma,
+                                mainApp.getCertificate().getEncoded());
+            } else {
+                exitoso = mainApp.getRmiConnector().getBancoStub()
+                        .registrarOperacion(idCuenta, tipoOperacion, monto);
+            }
             
             if (exitoso) {
                 statusLabel.setText("¡Operación exitosa!");

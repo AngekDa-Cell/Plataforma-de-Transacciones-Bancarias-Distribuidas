@@ -2,6 +2,8 @@ package com.banco.cliente.gui;
 
 import com.banco.cliente.gui.views.*;
 import javax.swing.*;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 
 /**
  * Clase principal de la aplicación Swing.
@@ -11,6 +13,10 @@ public class ClienteBancarioGUI {
 
     private JFrame mainFrame;
     private RMIConnector rmiConnector;
+    private PrivateKey privateKey;
+    private X509Certificate certificate;
+    private String alias;
+    private String idCuenta;
 
     public ClienteBancarioGUI() {
         // Configurar el Look and Feel del sistema
@@ -93,6 +99,18 @@ public class ClienteBancarioGUI {
     public JFrame getMainFrame() {
         return mainFrame;
     }
+
+    public void setSecurityContext(PrivateKey pk, X509Certificate cert, String alias, String idCuenta) {
+        this.privateKey = pk;
+        this.certificate = cert;
+        this.alias = alias;
+        this.idCuenta = idCuenta;
+    }
+
+    public PrivateKey getPrivateKey() { return privateKey; }
+    public X509Certificate getCertificate() { return certificate; }
+    public String getAlias() { return alias; }
+    public String getIdCuenta() { return idCuenta; }
 
     public static void main(String[] args) {
         // Ejecutar en el Event Dispatch Thread de Swing

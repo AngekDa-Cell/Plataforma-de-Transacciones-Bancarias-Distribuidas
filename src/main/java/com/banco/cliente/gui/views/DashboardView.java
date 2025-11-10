@@ -153,9 +153,21 @@ public class DashboardView extends JPanel {
      */
     private void cargarSaldo() {
         try {
-            double saldo = mainApp.getRmiConnector().getBancoStub()
-                .consultarSaldo(idCuenta);
-            saldoValorLabel.setText(String.format("$%.2f", saldo));
+            // Si hay contexto de seguridad, usar método firmado
+            if (mainApp.getPrivateKey() != null && mainApp.getCertificate() != null) {
+                long ts = System.currentTimeMillis();
+                String canonical = String.format("CONSULTAR|%s|%d", idCuenta, ts);
+                byte[] firma = com.banco.security.SecurityUtil.sign(
+                    com.banco.security.SecurityUtil.utf8(canonical),
+                    mainApp.getPrivateKey());
+                double saldo = mainApp.getRmiConnector().getBancoStub()
+                    .consultarSaldoFirmado(idCuenta, ts, firma, mainApp.getCertificate().getEncoded());
+                saldoValorLabel.setText(String.format("$%.2f", saldo));
+            } else {
+                double saldo = mainApp.getRmiConnector().getBancoStub()
+                    .consultarSaldo(idCuenta);
+                saldoValorLabel.setText(String.format("$%.2f", saldo));
+            }
         } catch (Exception ex) {
             saldoValorLabel.setText("Error");
             saldoValorLabel.setForeground(new Color(220, 20, 60)); // Crimson

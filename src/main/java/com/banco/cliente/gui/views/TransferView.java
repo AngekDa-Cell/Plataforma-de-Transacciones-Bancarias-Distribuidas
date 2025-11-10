@@ -213,8 +213,20 @@ public class TransferView extends JPanel {
         }
         
         try {
-            boolean exitoso = mainApp.getRmiConnector().getBancoStub()
-                .transferirFondos(idCuentaOrigen, cuentaDestino, monto);
+            boolean exitoso;
+            if (mainApp.getPrivateKey() != null && mainApp.getCertificate() != null) {
+                long ts = System.currentTimeMillis();
+                String canonical = String.format("TRANSFERIR|%s|%s|%.8f|%d", idCuentaOrigen, cuentaDestino, monto, ts);
+                byte[] firma = com.banco.security.SecurityUtil.sign(
+                        com.banco.security.SecurityUtil.utf8(canonical),
+                        mainApp.getPrivateKey());
+                exitoso = mainApp.getRmiConnector().getBancoStub().transferirFondosFirmado(
+                        idCuentaOrigen, cuentaDestino, monto, ts, firma,
+                        mainApp.getCertificate().getEncoded());
+            } else {
+                exitoso = mainApp.getRmiConnector().getBancoStub()
+                        .transferirFondos(idCuentaOrigen, cuentaDestino, monto);
+            }
             
             if (exitoso) {
                 statusLabel.setText("¡Transferencia exitosa!");
