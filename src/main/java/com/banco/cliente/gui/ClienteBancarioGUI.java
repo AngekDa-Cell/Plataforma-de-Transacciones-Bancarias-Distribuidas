@@ -44,7 +44,7 @@ public class ClienteBancarioGUI {
      */
     public void mostrarLoginView() {
         LoginView loginView = new LoginView(this);
-        cambiarVista(loginView, 550, 450);
+        cambiarVista(loginView, 720, 520);
     }
 
     /**

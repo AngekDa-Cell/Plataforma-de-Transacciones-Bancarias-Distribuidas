@@ -12,7 +12,9 @@ Write-Host ""
 $ckPath = Join-Path $PSScriptRoot "keystore/client-keystore.p12"
 if (Test-Path $ckPath) {
 	Write-Host "Usando keystore del cliente: $ckPath" -ForegroundColor Yellow
-	java -Dclient.keystore.path="$ckPath" -cp bin com.banco.cliente.gui.ClienteBancarioGUI
+	$java = "java"
+	& $java "-Dclient.keystore.path=$ckPath" "-cp" "bin" "com.banco.cliente.gui.ClienteBancarioGUI"
 } else {
-	java -cp bin com.banco.cliente.gui.ClienteBancarioGUI
+	$java = "java"
+	& $java "-cp" "bin" "com.banco.cliente.gui.ClienteBancarioGUI"
 }

@@ -122,10 +122,17 @@ public class LoginView extends JPanel {
     JLabel ksPathLabel = new JLabel("Keystore (.p12):");
     ksPathLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
     centerPanel.add(ksPathLabel, gbcCenter);
-    gbcCenter.gridx = 1; gbcCenter.anchor = GridBagConstraints.WEST;
-    keystorePathField = new JTextField(18);
-    keystorePathField.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-    centerPanel.add(keystorePathField, gbcCenter);
+        gbcCenter.gridx = 1; gbcCenter.anchor = GridBagConstraints.WEST;
+        keystorePathField = new JTextField(18);
+        keystorePathField.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        // Prefijar con la property del sistema si existe
+        try {
+            String ksProp = System.getProperty("client.keystore.path");
+            if (ksProp != null && !ksProp.isEmpty()) {
+                keystorePathField.setText(ksProp);
+            }
+        } catch (Exception ignore) {}
+        centerPanel.add(keystorePathField, gbcCenter);
 
     gbcCenter.gridy = 7; gbcCenter.gridx = 0; gbcCenter.anchor = GridBagConstraints.EAST;
     JLabel ksPassLabel = new JLabel("Password KS:");

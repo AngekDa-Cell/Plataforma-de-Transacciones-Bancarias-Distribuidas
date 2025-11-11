@@ -15,7 +15,7 @@ public class BancoServidorImpl extends UnicastRemoteObject implements BancoServi
     private final Map<String, Double> saldos;
     private final Map<String, String> credenciales;
     private final KeyStore trustStore;
-    private final long TIME_SKEW_MS = 2 * 60 * 1000; // 2 minutos
+    private final long TIME_SKEW_MS = 10 * 60 * 1000; // 10 minutos
 
     public BancoServidorImpl() throws RemoteException {
         super();
@@ -137,11 +137,11 @@ public class BancoServidorImpl extends UnicastRemoteObject implements BancoServi
     }
 
     // ================= Implementación firmada =================
-    @Override
     public boolean autenticarCert(String idCuenta, long timestamp, byte[] firma, byte[] certificadoX509Der) throws RemoteException {
         String canonical = String.format(Locale.ROOT, "LOGIN|%s|%d", idCuenta, timestamp);
         SeguridadResultado ver = verificar("LOGIN", idCuenta, canonical, timestamp, firma, certificadoX509Der);
-        AuditLog.append("LOGIN", idCuenta, canonical, ver.ok, firma, ver.certSubject);
+        if (!ver.ok) System.out.println("[SEC] LOGIN fallo: razon=" + ver.failureReason);
+        AuditLog.append("LOGIN", idCuenta, canonical, ver.ok, firma, ver.certSubject, ver.failureReason);
         return ver.ok;
     }
 
@@ -149,9 +149,12 @@ public class BancoServidorImpl extends UnicastRemoteObject implements BancoServi
     public double consultarSaldoFirmado(String idCuenta, long timestamp, byte[] firma, byte[] certificadoX509Der) throws RemoteException {
         String canonical = String.format(Locale.ROOT, "CONSULTAR|%s|%d", idCuenta, timestamp);
         SeguridadResultado ver = verificar("CONSULTAR", idCuenta, canonical, timestamp, firma, certificadoX509Der);
-        if (!ver.ok) throw new RemoteException("Firma/certificado inválido o expirado");
+        if (!ver.ok) {
+            System.out.println("[SEC] CONSULTAR fallo: razon=" + ver.failureReason);
+            throw new RemoteException("Firma/certificado inválido o expirado: " + ver.failureReason);
+        }
         double resultado = consultarSaldo(idCuenta);
-        AuditLog.append("CONSULTAR", idCuenta, canonical + "|resultado=" + resultado, true, firma, ver.certSubject);
+        AuditLog.append("CONSULTAR", idCuenta, canonical + "|resultado=" + resultado, true, firma, ver.certSubject, null);
         return resultado;
     }
 
@@ -159,9 +162,12 @@ public class BancoServidorImpl extends UnicastRemoteObject implements BancoServi
     public synchronized boolean transferirFondosFirmado(String idCuentaOrigen, String idCuentaDestino, double monto, long timestamp, byte[] firma, byte[] certificadoX509Der) throws RemoteException {
         String canonical = String.format(Locale.ROOT, "TRANSFERIR|%s|%s|%.8f|%d", idCuentaOrigen, idCuentaDestino, monto, timestamp);
         SeguridadResultado ver = verificar("TRANSFERIR", idCuentaOrigen, canonical, timestamp, firma, certificadoX509Der);
-        if (!ver.ok) throw new RemoteException("Firma/certificado inválido o expirado");
+        if (!ver.ok) {
+            System.out.println("[SEC] TRANSFERIR fallo: razon=" + ver.failureReason);
+            throw new RemoteException("Firma/certificado inválido o expirado: " + ver.failureReason);
+        }
         boolean ok = transferirFondos(idCuentaOrigen, idCuentaDestino, monto);
-        AuditLog.append("TRANSFERIR", idCuentaOrigen, canonical + "|ok=" + ok, ok, firma, ver.certSubject);
+        AuditLog.append("TRANSFERIR", idCuentaOrigen, canonical + "|ok=" + ok, ok, firma, ver.certSubject, null);
         return ok;
     }
 
@@ -169,9 +175,12 @@ public class BancoServidorImpl extends UnicastRemoteObject implements BancoServi
     public synchronized boolean registrarOperacionFirmado(String idCuenta, String tipoOperacion, double monto, long timestamp, byte[] firma, byte[] certificadoX509Der) throws RemoteException {
         String canonical = String.format(Locale.ROOT, "OPERACION|%s|%s|%.8f|%d", idCuenta, safe(tipoOperacion), monto, timestamp);
         SeguridadResultado ver = verificar("OPERACION", idCuenta, canonical, timestamp, firma, certificadoX509Der);
-        if (!ver.ok) throw new RemoteException("Firma/certificado inválido o expirado");
+        if (!ver.ok) {
+            System.out.println("[SEC] OPERACION fallo: razon=" + ver.failureReason);
+            throw new RemoteException("Firma/certificado inválido o expirado: " + ver.failureReason);
+        }
         boolean ok = registrarOperacion(idCuenta, tipoOperacion, monto);
-        AuditLog.append("OPERACION", idCuenta, canonical + "|ok=" + ok, ok, firma, ver.certSubject);
+        AuditLog.append("OPERACION", idCuenta, canonical + "|ok=" + ok, ok, firma, ver.certSubject, null);
         return ok;
     }
 
@@ -182,14 +191,14 @@ public class BancoServidorImpl extends UnicastRemoteObject implements BancoServi
     private SeguridadResultado verificar(String oper, String idCuenta, String canonical, long timestamp, byte[] firma, byte[] certDer) throws RemoteException {
         try {
             if (Math.abs(System.currentTimeMillis() - timestamp) > TIME_SKEW_MS) {
-                return SeguridadResultado.fail("timestamp fuera de ventana");
+                return SeguridadResultado.fail("timestamp_fuera_de_ventana");
             }
             X509Certificate cert = SecurityUtil.readCertificateFromDer(certDer);
             // Validar que el certificado esté en el truststore
             boolean trusted = SecurityUtil.isCertificateInTrustStore(cert, trustStore);
-            if (!trusted) return SeguridadResultado.fail("certificado no confiable");
+            if (!trusted) return SeguridadResultado.fail("certificado_no_confiable");
             boolean signatureOk = SecurityUtil.verify(canonical.getBytes("UTF-8"), firma, cert);
-            if (!signatureOk) return SeguridadResultado.fail("firma inválida");
+            if (!signatureOk) return SeguridadResultado.fail("firma_invalida");
             // Opcional: validar que el Subject CN contenga el idCuenta
             String subject = cert.getSubjectX500Principal().getName();
             if (!subject.contains(idCuenta)) {
@@ -204,10 +213,11 @@ public class BancoServidorImpl extends UnicastRemoteObject implements BancoServi
     private static class SeguridadResultado {
         final boolean ok;
         final String certSubject;
-        private SeguridadResultado(boolean ok, String certSubject) {
-            this.ok = ok; this.certSubject = certSubject;
+        final String failureReason;
+        private SeguridadResultado(boolean ok, String certSubject, String failureReason) {
+            this.ok = ok; this.certSubject = certSubject; this.failureReason = failureReason;
         }
-        static SeguridadResultado ok(String subject) { return new SeguridadResultado(true, subject); }
-        static SeguridadResultado fail(String reason) { return new SeguridadResultado(false, null); }
+        static SeguridadResultado ok(String subject) { return new SeguridadResultado(true, subject, null); }
+        static SeguridadResultado fail(String reason) { return new SeguridadResultado(false, null, reason); }
     }
 }

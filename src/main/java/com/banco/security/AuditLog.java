@@ -35,13 +35,18 @@ public class AuditLog {
     }
 
     public static synchronized void append(String oper, String idCuenta, String canonical, boolean ok, byte[] firma, String certSubject) {
+        append(oper, idCuenta, canonical, ok, firma, certSubject, null);
+    }
+
+    public static synchronized void append(String oper, String idCuenta, String canonical, boolean ok, byte[] firma, String certSubject, String reason) {
         try {
             String ts = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date());
-            String base = String.format("ts=%s oper=%s id=%s ok=%s msg=%s sig=%s subj=%s prev=%s",
+            String base = String.format("ts=%s oper=%s id=%s ok=%s msg=%s sig=%s subj=%s prev=%s%s",
                     ts, oper, idCuenta, ok, canonical.replace('\n', ' ').replace('\r', ' '),
                     SecurityUtil.b64(firma),
                     certSubject == null ? "" : certSubject.replace(' ', '_'),
-                    lastHash);
+                    lastHash,
+                    reason == null ? "" : (" reason=" + reason.replace(' ', '_')));
             String newHash = SecurityUtil.hex(SecurityUtil.sha256(base.getBytes(StandardCharsets.UTF_8)));
             String line = base + " hash=" + newHash + System.lineSeparator();
             try (FileOutputStream fos = new FileOutputStream(LOG_FILE, true)) {
