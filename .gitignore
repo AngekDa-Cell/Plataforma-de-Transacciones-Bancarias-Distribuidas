@@ -1,3 +1,19 @@
+bin/
+out/
+*.class
+
+# Security artifacts (do not commit)
+keystore/
+*.jks
+*.p12
+*.pfx
+*.crt
+
+# Audit log (local runtime artifact)
+audit.log
+
+.DS_Store
+Thumbs.db
 # Build outputs
 out/
 bin/
