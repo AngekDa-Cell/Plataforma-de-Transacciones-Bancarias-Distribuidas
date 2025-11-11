@@ -65,6 +65,13 @@ public class SecurityUtil {
         }
     }
 
+    public static X509Certificate readCertificateFromFile(String path) throws Exception {
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        try (FileInputStream fis = new FileInputStream(path)) {
+            return (X509Certificate) cf.generateCertificate(fis);
+        }
+    }
+
     public static boolean isCertificateInTrustStore(X509Certificate cert, KeyStore trustStore) throws Exception {
         if (trustStore == null) return false;
         String alias = trustStore.getCertificateAlias(cert);

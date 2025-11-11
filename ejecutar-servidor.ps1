@@ -10,6 +10,18 @@ Write-Host ""
 
 # Opcional: pasar truststore si existe
 $tsPath = Join-Path $PSScriptRoot "keystore/server-truststore.jks"
+if (-not (Test-Path $tsPath)) {
+	Write-Host "No se encontró truststore. Intentando crearlo desde keystore/*.crt ..." -ForegroundColor Yellow
+	$crear = Join-Path $PSScriptRoot "crear-truststore-jks.ps1"
+	if (Test-Path $crear) {
+		try {
+			& $crear
+		} catch {
+			Write-Host "No se pudo crear el truststore automáticamente: $($_.Exception.Message)" -ForegroundColor Red
+		}
+	}
+}
+
 if (Test-Path $tsPath) {
 	Write-Host "Usando truststore del servidor: $tsPath" -ForegroundColor Yellow
 	$java = "java"
