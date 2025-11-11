@@ -1,3 +1,5 @@
+#ESTE SCRIPT TIENE PROBLEMAS PARA GENERAR CERTIFICADOS USA EL BUSCAR-KEYTOOL-Y-GENERAR.ps1#
+
 # Genera keystore de cliente (PKCS12) y truststore de servidor (JKS) para cuentas de ejemplo
 # Requisitos: keytool (viene con el JDK). Si no está en PATH, se usará $env:JAVA_HOME\bin\keytool.exe
 
